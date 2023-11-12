@@ -1,3 +1,203 @@
+# Tugas 8
+
+## Pertanyaan
+
+### Perbedaan `Navigator.push()` dan `Navigator.pushReplacement()`
+
+Navigator.push() dan Navigator.pushReplacement() adalah dua metode yang digunakan dalam Flutter untuk mengelola routing antar halaman (page navigation) dalam aplikasi. Perbedaannya adalah:
+
+1. Navigator.push()
+`Navigator.push()` digunakan untuk menambahkan halaman baru ke dalam stack navigasi. Halaman baru akan ditambahkan di atas halaman saat ini, dan pengguna dapat kembali ke halaman sebelumnya dengan tombol "back" pada perangkat.
+```dart
+onPressed: () {
+  Navigator.push(
+    context,
+    MaterialPageRoute(builder: (context) => Menu()),
+  );
+}
+```
+
+2. Navigator.pushReplacement():
+
+`Navigator.pushReplacement()` juga menambahkan halaman baru ke dalam stack navigasi, tetapi dengan menggantikan halaman saat ini. Ini berarti halaman saat ini akan dihapus dari tumpukan, dan halaman baru akan menjadi halaman terbaru (pop dan push). Pengguna tidak dapat kembali ke halaman sebelumnya, karena halaman tersebut telah digantikan.
+
+```dart
+onPressed: () {
+  Navigator.pushReplacement(
+    context,
+    MaterialPageRoute(builder: (context) => HalamanGantian()),
+  );
+}
+```
+
+### Jelaskan masing-masing layout widget pada Flutter
+
+Flutter memiliki berbagai macam widget untuk mengatur tata letak (layout) dalam aplikasi. Berikut adalah beberapa layout widget utama beserta konteks penggunaannya:
+
+1. **Container:**
+   - **Konteks Penggunaan:**
+     - Digunakan untuk mengelilingi widget lain dan memberikan properti seperti padding, margin, dan dekorasi.
+     - Cocok untuk mengatur tata letak dan penataan widget di dalamnya.
+
+   ```dart
+   Container(
+     padding: EdgeInsets.all(16.0),
+     margin: EdgeInsets.symmetric(vertical: 8.0),
+     decoration: BoxDecoration(
+       color: Colors.blue,
+       borderRadius: BorderRadius.circular(8.0),
+     ),
+     child: Text('Isi Container'),
+   )
+   ```
+
+2. **Row dan Column:**
+   - **Konteks Penggunaan:**
+     - `Row` digunakan untuk menempatkan widget dalam satu baris secara horizontal.
+     - `Column` digunakan untuk menempatkan widget dalam satu kolom secara vertikal.
+
+   ```dart
+   Row(
+     children: [
+       Icon('Kolom 1'),
+       Text('Kolom 2'),
+     ],
+   )
+
+   Column(
+     children: [
+       Text('Baris 1'),
+       Text('Baris 2'),
+     ],
+   )
+   ```
+
+3. **ListView:**
+   - **Konteks Penggunaan:**
+     - Digunakan ketika ingin menampilkannya daftar item yang dapat di-scroll.
+     - Cocok untuk menampilkan data dinamis secara singkat.
+
+   ```dart
+   ListView(
+     children: [
+       ListTile(
+         title: Text('Item 1'),
+       ),
+       ListTile(
+         title: Text('Item 2'),
+       ),
+	   ...
+     ],
+   )
+   ```
+
+4. **Stack:**
+   - **Konteks Penggunaan:**
+     - Digunakan untuk menumpuk widget di atas satu sama lain.
+     - Cocok untuk membuat tata letak kompleks.
+
+   ```dart
+   Stack(
+     children: [
+       Image(...),
+       Positioned(
+         bottom: 10.0,
+         right: 10.0,
+         child: Text('Posisi Teks'),
+       ),
+     ],
+   )
+   ```
+
+5. **Expanded dan Flexible:**
+   - **Konteks Penggunaan:**
+     - `Expanded` dan `Flexible` digunakan dalam `Row` atau `Column` untuk memberikan fleksibilitas pada ukuran widget child.
+     - `Expanded` membuat widget memenuhi sebanyak mungkin ruang yang tersedia.
+     - `Flexible` memberikan kontrol terhadap seberapa banyak ruang yang diambil oleh child.
+
+   ```dart
+   Row(
+     children: [
+       Expanded(
+         child: Container(color: Colors.red),
+       ),
+       Container(color: Colors.blue),
+     ],
+   )
+
+   Row(
+     children: [
+       Flexible(
+         flex: 2,
+         child: Container(color: Colors.red),
+       ),
+       Flexible(
+         flex: 1,
+         child: Container(color: Colors.blue),
+       ),
+     ],
+   )
+   ```
+
+6. **GridView:**
+   - **Konteks Penggunaan:**
+     - Digunakan untuk menampilkan widget dalam tata letak grid (kotak).
+     - Cocok untuk menampilkan koleksi item dalam grid.
+
+   ```dart
+   GridView.builder(
+     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+       crossAxisCount: 2,
+       crossAxisSpacing: 8.0,
+       mainAxisSpacing: 8.0,
+     ),
+     itemBuilder: (context, index) {
+       return Container(
+         color: Colors.green,
+       );
+     },
+   )
+   ```
+
+### Sebutkan elemen input pada form yang kamu pakai!
+
+TextFormField adalah widget dalam Flutter yang digunakan untuk membuat kolom input teks yang dapat menerima masukan dari pengguna. Berikut beberapa fitur mengapa TextFormField sering digunakan:
+
+1. Memproses Input Pengguna:
+TextFormField membantu memproses input pengguna dengan mudah, termasuk validasi otomatis, misalnya, memeriksa apakah input sesuai dengan tipe data yang diharapkan (misalnya, angka atau teks).
+2. Pemberian Label dan Hints:
+Mendukung label dan teks hint yang membantu memberikan panduan kepada pengguna tentang jenis informasi yang diharapkan di dalam kolom input.
+3. Validasi Input:
+TextFormField memungkinkan penggunaan fungsi validasi untuk memastikan bahwa input pengguna sesuai dengan kriteria tertentu sebelum diizinkan untuk diproses lebih lanjut.
+
+```dart
+TextFormField(
+  decoration: InputDecoration(
+    labelText: 'Nama Pengguna',
+    hintText: 'Masukkan nama pengguna',
+    icon: Icon(Icons.person),
+  ),
+  validator: (value) {
+    if (value.isEmpty) {
+      return 'Nama pengguna tidak boleh kosong';
+    }
+    return null;
+  },
+  onSaved: (value) {
+    print('Nama Pengguna: $value');
+  },
+)
+```
+
+### Bagaimana penerapan clean architecture pada aplikasi Flutter?
+
+Penerapan Clean Architecture pada aplikasi Flutter melibatkan struktur proyek dan pembagian fokus yang terorganisir dengan tujuan agar lebih modular dan mudah diuji. Salah satu penerapan clean architecture adalah dengan membuat folder untuk membedakan file `.dart` untuk screen, widget, dan sebagainya.
+
+### Jelaskan bagaimana cara kamu mengimplementasikan checklist di atas secara step-by-step! (bukan hanya sekadar mengikuti tutorial)
+
+
+
+
 # Tugas 7
 
 ## Pertanyaan

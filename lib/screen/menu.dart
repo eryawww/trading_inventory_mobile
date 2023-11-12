@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:trading_inventory_mobile/screen/add_item.dart';
+import 'package:trading_inventory_mobile/widget/appbar.dart';
+import 'package:trading_inventory_mobile/screen/daftar_item.dart';
+import 'package:trading_inventory_mobile/widget/drawer.dart';
 
 class Menu extends StatelessWidget {
   Menu({Key? key}) : super(key: key);
@@ -12,11 +16,8 @@ class Menu extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Trading Inventory',
-            style: TextStyle(color: Colors.white)),
-        backgroundColor: Colors.indigo,
-      ),
+      appBar: MyAppBar(),
+      drawer: const LeftDrawer(),
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(10.0),
@@ -58,10 +59,13 @@ class ShopCard extends StatelessWidget {
       color: item.color,
       child: InkWell(
         onTap: () {
-          ScaffoldMessenger.of(context)
-            ..hideCurrentSnackBar()
-            ..showSnackBar(SnackBar(
-                content: Text("Kamu telah menekan tombol ${item.name}!")));
+          if (item.name == "Tambah Produk") {
+            Navigator.push(context,
+                MaterialPageRoute(builder: (context) => const AddItem()));
+          }else if(item.name == "Lihat Produk") {
+            Navigator.push(context,
+                MaterialPageRoute(builder: (context) => DaftarItem()));
+          }
         },
         child: Container(
           padding: EdgeInsets.all(8),
