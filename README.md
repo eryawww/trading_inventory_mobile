@@ -195,8 +195,292 @@ Penerapan Clean Architecture pada aplikasi Flutter melibatkan struktur proyek da
 
 ### Jelaskan bagaimana cara kamu mengimplementasikan checklist di atas secara step-by-step! (bukan hanya sekadar mengikuti tutorial)
 
+1. Membuat Drawer
+Kode ini digunakan untuk menampilkan drawer di sebelah kiri page.
 
 
+```dart
+import 'package:flutter/material.dart';
+import 'package:trading_inventory_mobile/screen/add_item.dart';
+import 'package:trading_inventory_mobile/screen/daftar_item.dart';
+import 'package:trading_inventory_mobile/screen/menu.dart';
+
+
+class LeftDrawer extends StatelessWidget {
+    const LeftDrawer({super.key});
+
+    @override
+    Widget build(BuildContext context) {
+        return Drawer(
+            child: ListView(
+            children: [
+                const DrawerHeader(
+                    decoration: BoxDecoration(
+                        color: Colors.indigo,
+                    ),
+                    child: Column(
+                        children: [
+                            Text(
+                                'Shopping List',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                    fontSize: 30,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                ),
+                            ),
+                            Padding(padding: EdgeInsets.all(10)),
+                            Text("Catat seluruh keperluan belanjamu di sini!",
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                    fontSize: 15,
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.normal
+                                ),
+                            ),
+                        ],
+                    ),
+                ),
+                ListTile(
+                    leading: const Icon(Icons.home_outlined),
+                    title: const Text('Halaman Utama'),
+                    // Bagian redirection ke MyHomePage
+                    onTap: () {
+                        Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                            builder: (context) => Menu(),
+                            ));
+                    },
+                  ),
+                ListTile(
+                  leading: const Icon(Icons.add_shopping_cart),
+                  title: const Text('Tambah Item'),
+                  // Bagian redirection ke ShopFormPage
+                  onTap: () {
+                      Navigator.push(context,
+                          MaterialPageRoute(builder: (context) => const AddItem()));
+                  },
+                ),
+                ListTile(
+                  leading: const Icon(Icons.list),
+                  title: const Text('Daftar Item'),
+                  // Bagian redirection ke ShopFormPage
+                  onTap: () {
+                      Navigator.push(context,
+                          MaterialPageRoute(builder: (context) => DaftarItem()));
+                  },
+                ),
+              ],
+            ),
+        );
+    }
+}
+```
+
+2. Membuat Form Page Add Item
+Kita dapat menampilkan input form (TextFormField) dan tombol save untuk menampilkan pop up form yang diisi. Kita dapat menambahkan validator juga.
+
+```dart
+import 'package:flutter/material.dart';
+import 'package:trading_inventory_mobile/widget/appbar.dart';
+import 'package:trading_inventory_mobile/data.dart';
+
+class AddItem extends StatefulWidget {
+  const AddItem({super.key});
+
+  @override
+  State<AddItem> createState() => _AddItemState();
+}
+
+class _AddItemState extends State<AddItem> {
+  final _formKey = GlobalKey<FormState>();
+  String _name = "";
+  int _price = 0;
+  String _description = "";
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+        appBar: MyAppBar(),
+        body: Form(
+            key: _formKey,
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: TextFormField(
+                      decoration: InputDecoration(
+                        hintText: "Name",
+                        labelText: "Name",
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(5.0),
+                        ),
+                      ),
+                      onChanged: (String? value) {
+                        setState(() {
+                          _name = value!;
+                        });
+                      },
+                      validator: (String? value) {
+                        if (value == null || value.isEmpty) {
+                          return "Nama tidak boleh kosong!";
+                        }
+                        return null;
+                      },
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: TextFormField(
+                      decoration: InputDecoration(
+                        hintText: "Amount",
+                        labelText: "Amount",
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(5.0),
+                        ),
+                      ),
+                      onChanged: (String? value) {
+                        setState(() {
+                          _price = int.parse(value!);
+                        });
+                      },
+                      validator: (String? value) {
+                        if (value == null || value.isEmpty) {
+                          return "Harga tidak boleh kosong!";
+                        }
+                        if (int.tryParse(value) == null) {
+                          return "Harga harus berupa angka!";
+                        }
+                        return null;
+                      },
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: TextFormField(
+                      decoration: InputDecoration(
+                        hintText: "Description",
+                        labelText: "Description",
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(5.0),
+                        ),
+                      ),
+                      onChanged: (String? value) {
+                        setState(() {
+                          _description = value!;
+                        });
+                      },
+                      validator: (String? value) {
+                        if (value == null || value.isEmpty) {
+                          return "Deskripsi tidak boleh kosong!";
+                        }
+                        return null;
+                      },
+                    ),
+                  ),
+                  Align(
+                    alignment: Alignment.bottomCenter,
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: ElevatedButton(
+                        style: ButtonStyle(
+                          backgroundColor:
+                              MaterialStateProperty.all(Colors.indigo),
+                        ),
+                        onPressed: () {
+                          if (_formKey.currentState!.validate()) {
+                            Data newData = Data(_name, _price, _description);
+
+                            showDialog(
+                                context: context,
+                                builder: (context) {
+                                  return AlertDialog(
+                                    title:
+                                        const Text('Produk berhasil tersimpan'),
+                                    content: SingleChildScrollView(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text('Nama: $_name'),
+                                          Text('Price: $_price'),
+                                          Text('Description: $_description')
+                                        ],
+                                      ),
+                                    ),
+                                    actions: [
+                                      TextButton(
+                                        child: const Text('OK'),
+                                        onPressed: () {
+                                          Navigator.pop(context);
+                                        },
+                                      )
+                                    ],
+                                  );
+                                });
+                          }
+                        },
+                        child: const Text(
+                          "Save",
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            )));
+  }
+}
+```
+
+3. Menambahkan button untuk menampilkan drawer
+Di menu.dart kita menambahkan drawer dalam widget Scaffold (di sebelah kiri app bar).
+
+```dart
+return Scaffold(
+      appBar: MyAppBar(),
+      drawer: const LeftDrawer(),
+      body: ...
+)
+```
+
+4. Menambahkan routing button pada tambah Item
+Routing dapat dilakukan dengan menggunakan `Navigator.push`. Navigator dapat dibayangkan seperti struktur data yang menggunakan stack.
+```dart
+ return Material(
+      color: item.color,
+      child: InkWell(
+        onTap: () {
+          if (item.name == "Tambah Produk") {
+            Navigator.push(context,
+                MaterialPageRoute(builder: (context) => const AddItem()));
+          }else if(item.name == "Lihat Produk") {
+            Navigator.push(context,
+                MaterialPageRoute(builder: (context) => DaftarItem()));
+          }
+        },
+        ...
+```
+
+5. BONUS
+Membuat objek model pada data.dart. Class ini dapat digunakan mirip mirip sebagai ORM untuk mengatur Data pada applikasi kita.
+
+```dart
+class Data {
+  String name;
+  int amount;
+  String description;
+
+  static List<Data> objects = [];
+
+  Data(this.name, this.amount, this.description) {
+    objects.add(this);
+  }
+}
+```
 
 # Tugas 7
 
