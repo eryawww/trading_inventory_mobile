@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:pbp_django_auth/pbp_django_auth.dart';
+import 'package:provider/provider.dart';
 import 'package:trading_inventory_mobile/screen/add_item.dart';
+import 'package:trading_inventory_mobile/screen/login.dart';
 import 'package:trading_inventory_mobile/widget/appbar.dart';
 import 'package:trading_inventory_mobile/screen/daftar_item.dart';
 import 'package:trading_inventory_mobile/widget/drawer.dart';
@@ -55,16 +58,42 @@ class ShopCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final request = context.watch<CookieRequest>();
+    
     return Material(
       color: item.color,
       child: InkWell(
-        onTap: () {
+        onTap: () async {
           if (item.name == "Tambah Produk") {
             Navigator.push(context,
                 MaterialPageRoute(builder: (context) => const AddItem()));
-          }else if(item.name == "Lihat Produk") {
-            Navigator.push(context,
-                MaterialPageRoute(builder: (context) => DaftarItem()));
+          } else if (item.name == "Lihat Produk") {
+            Navigator.push(
+                context, MaterialPageRoute(builder: (context) => DaftarItem()));
+          } else if (item.name == "Logout") {
+            final response =
+                await request.logout("http://127.0.0.1:8000/auth/logout/");
+            if (response["status"]) {
+              Navigator.pushReplacement(context,
+                  MaterialPageRoute(builder: (context) => LoginPage()));
+            } else {
+              showDialog(
+                  context: context,
+                  builder: (context) {
+                    return AlertDialog(
+                      title: const Text('Logout Gagal, Mohon coba lagi'),
+                      actions: [
+                        TextButton(
+                          child: const Text('OK'),
+                          onPressed: () {
+                            Navigator.pop(context);
+                            Navigator.pop(context);
+                          },
+                        )
+                      ],
+                    );
+                  });
+            }
           }
         },
         child: Container(

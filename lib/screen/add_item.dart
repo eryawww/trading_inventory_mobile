@@ -1,4 +1,8 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:pbp_django_auth/pbp_django_auth.dart';
+import 'package:provider/provider.dart';
 import 'package:trading_inventory_mobile/widget/appbar.dart';
 import 'package:trading_inventory_mobile/data.dart';
 
@@ -13,10 +17,13 @@ class _AddItemState extends State<AddItem> {
   final _formKey = GlobalKey<FormState>();
   String _name = "";
   int _price = 0;
+  int _amount = 0;
   String _description = "";
 
   @override
   Widget build(BuildContext context) {
+    final request = context.watch<CookieRequest>();
+
     return Scaffold(
         appBar: MyAppBar(),
         body: Form(
@@ -51,8 +58,8 @@ class _AddItemState extends State<AddItem> {
                     padding: const EdgeInsets.all(8.0),
                     child: TextFormField(
                       decoration: InputDecoration(
-                        hintText: "Amount",
-                        labelText: "Amount",
+                        hintText: "Price",
+                        labelText: "Price",
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(5.0),
                         ),
@@ -68,6 +75,32 @@ class _AddItemState extends State<AddItem> {
                         }
                         if (int.tryParse(value) == null) {
                           return "Harga harus berupa angka!";
+                        }
+                        return null;
+                      },
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: TextFormField(
+                      decoration: InputDecoration(
+                        hintText: "Amount",
+                        labelText: "Amount",
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(5.0),
+                        ),
+                      ),
+                      onChanged: (String? value) {
+                        setState(() {
+                          _amount = int.parse(value!);
+                        });
+                      },
+                      validator: (String? value) {
+                        if (value == null || value.isEmpty) {
+                          return "Banyak tidak boleh kosong!";
+                        }
+                        if (int.tryParse(value) == null) {
+                          return "Banyak harus berupa angka!";
                         }
                         return null;
                       },
@@ -105,16 +138,23 @@ class _AddItemState extends State<AddItem> {
                           backgroundColor:
                               MaterialStateProperty.all(Colors.indigo),
                         ),
-                        onPressed: () {
+                        onPressed: () async {
                           if (_formKey.currentState!.validate()) {
-                            Data newData = Data(_name, _price, _description);
-
-                            showDialog(
+                            final response = await request.postJson(
+                                "http://127.0.0.1:8000/add_data_flutter",
+                                jsonEncode(<String, String>{
+                                  "name": _name,
+                                  "amount": _amount.toString(),
+                                  "price": _price.toString(),
+                                  "description": _description
+                                }));
+                            if (response['status'] == 'success') {
+                              showDialog(
                                 context: context,
                                 builder: (context) {
                                   return AlertDialog(
-                                    title:
-                                        const Text('Produk berhasil tersimpan'),
+                                    title: const Text(
+                                        'Produk berhasil tersimpan'),
                                     content: SingleChildScrollView(
                                       child: Column(
                                         crossAxisAlignment:
@@ -122,10 +162,29 @@ class _AddItemState extends State<AddItem> {
                                         children: [
                                           Text('Nama: $_name'),
                                           Text('Price: $_price'),
+                                          Text('Amount: $_amount'),
                                           Text('Description: $_description')
                                         ],
                                       ),
                                     ),
+                                    actions: [
+                                      TextButton(
+                                        child: const Text('OK'),
+                                        onPressed: () {
+                                          Navigator.pop(context);
+                                          Navigator.pop(context);
+                                        },
+                                      )
+                                    ],
+                                  );
+                                });
+                            } else {
+                              showDialog(
+                                context: context,
+                                builder: (context) {
+                                  return AlertDialog(
+                                    title: const Text(
+                                        'Produk gagal disimpan'),
                                     actions: [
                                       TextButton(
                                         child: const Text('OK'),
@@ -136,6 +195,7 @@ class _AddItemState extends State<AddItem> {
                                     ],
                                   );
                                 });
+                            }
                           }
                         },
                         child: const Text(
